@@ -39,7 +39,7 @@ def notion_add_entry(
             'Title': {
                 'title': [{
                     'text': {
-                        'content': ref_id,  # Use ref_id as the Title
+                        'content': title,  # Use title as the Title
                     }
                 }]
             },
@@ -94,7 +94,7 @@ def notion_update_page(
             'Title': {
                 'title': [{
                     'text': {
-                        'content': ref_id,  # Use ref_id as the Title
+                        'content': title,  # Use title as the Title
                     }
                 }]
             },
