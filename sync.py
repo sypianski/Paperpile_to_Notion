@@ -31,6 +31,12 @@ def notion_add_entry(
     if not ref_id:
         raise ValueError("The 'ref_id' parameter cannot be empty.")
 
+    # Check if an entry with the same Reference ID already exists
+    existing_page_id = notion_fetch_page(ref_id)
+    if existing_page_id != -1:
+        print(f"Entry with Reference ID '{ref_id}' already exists. Skipping creation.")
+        return
+    
     url = "https://api.notion.com/v1/pages"
     payload = {
         "parent": {
@@ -250,7 +256,7 @@ def main():
             )
             update_archive = True
         else:  # Check if the entry has changed
-            matching_entry = next((e for e in archive if e['Reference ID'] == ref_id), None)
+            matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
             if matching_entry:
                 # Compare fields to detect changes
                 if (
@@ -267,7 +273,7 @@ def main():
                             authors=authors,
                             year=year,
                             ref_id=ref_id,
-                            item_type=item_type,  # Pass the type
+                            item_type=item_type,
                         )
                         update_archive = True
 
