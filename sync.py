@@ -22,8 +22,16 @@ def notion_add_entry(
     authors='',
     year='0',
     ref_id='',
-    link='',
+    link=''
 ):
+    # Ensure required fields are not empty
+    if not title:
+        raise ValueError("The 'title' parameter cannot be empty.")
+    if not authors:
+        raise ValueError("The 'authors' parameter cannot be empty.")
+    if not ref_id:
+        raise ValueError("The 'ref_id' parameter cannot be empty.")
+
     url = "https://api.notion.com/v1/pages"
     payload = {
         "parent": {
@@ -34,9 +42,9 @@ def notion_add_entry(
                 'title': [{
                     'text': {
                         'content': title,
-                        }
-                    }]
-                },
+                    }
+                }]
+            },
             'Authors': {
                 "rich_text": [{
                     "type": "text",
@@ -62,13 +70,10 @@ def notion_add_entry(
                 }],
             },
             'Link': {
-                "url": link,
+                "url": link if link else None,
             },
-                    
-                    
         },
     }
-    #  pprint.pprint(payload)
     headers = {
         "Accept": "application/json",
         "Notion-Version": "2022-06-28",
@@ -76,7 +81,6 @@ def notion_add_entry(
         "Authorization": f"Bearer {NOTION_TOKEN}"
     }
     response = requests.post(url, json=payload, headers=headers)
-    #  pprint.pprint(json.loads(response.text))
 
 
 def notion_update_page(
@@ -158,45 +162,52 @@ def notion_fetch_page(ref_id):
         "Content-Type": "application/json",
         "Authorization": f"Bearer {NOTION_TOKEN}"
     }
-    
-    response = requests.post(url, json=payload, headers=headers)
-    
-    response = json.loads(response.text)
-    #  pprint.pprint(response)
-    try:
-        if len(response['results']) > 0:
-            return response['results'][0]['id']
-    except:
-        return -1
-    return -1
 
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        response_data = response.json()
+
+        if 'results' in response_data and len(response_data['results']) > 0:
+            return response_data['results'][0]['id']
+        else:
+            return -1
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while querying the Notion API: {e}")
+        return -1
+    except KeyError as e:
+        print(f"Unexpected response structure: missing key {e}")
+        return -1
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return -1Le
+
+
+import re
 
 def clean_str(string):
-    string = string.strip()
-    string = string.replace('\n', ' ')
-    string = string.replace(r'\"a', 'ä')
-    string = string.replace(r'\"e', 'ë')
-    string = string.replace(r'\"i', 'ï')
-    string = string.replace(r'\"o', 'ö')
-    string = string.replace(r'\"u', 'ü')
-    string = string.replace(r'\'a', 'á')
-    string = string.replace(r'\'e', 'é')
-    string = string.replace(r'\'i', 'í')
-    string = string.replace(r'\'o', 'ó')
-    string = string.replace(r'\'u', 'ú')
-    string = string.replace(r'\^a', 'â')
-    string = string.replace(r'\^e', 'ê')
-    string = string.replace(r'\^i', 'î')
-    string = string.replace(r'\^o', 'ô')
-    string = string.replace(r'\^u', 'û')
-    string = string.replace(r'\`a', 'à')
-    string = string.replace(r'\`e', 'è')
-    string = string.replace(r'\`i', 'ì')
-    string = string.replace(r'\`o', 'ò')
-    string = string.replace(r'\`u', 'ù')
+    # Strip leading/trailing whitespace and replace newlines
+    string = string.strip().replace('\n', ' ')
+    
+    # Dictionary of replacements for special characters
+    replacements = {
+        r'\\\"a': 'ä', r'\\\"e': 'ë', r'\\\"i': 'ï', r'\\\"o': 'ö', r'\\\"u': 'ü',
+        r'\\\'a': 'á', r'\\\'e': 'é', r'\\\'i': 'í', r'\\\'o': 'ó', r'\\\'u': 'ú',
+        r'\\\^a': 'â', r'\\\^e': 'ê', r'\\\^i': 'î', r'\\\^o': 'ô', r'\\\^u': 'û',
+        r'\\\`a': 'à', r'\\\`e': 'è', r'\\\`i': 'ì', r'\\\`o': 'ò', r'\\\`u': 'ù'
+    }
+    
+    # Perform replacements using regex
+    for pattern, replacement in replacements.items():
+        string = re.sub(pattern, replacement, string)
+    
+    # Title case for lowercase words
     string = ' '.join([w.title() if w.islower() else w for w in string.split()])
-    string = string.replace('{', '')
-    string = string.replace('}', '')
+    
+    # Remove curly braces
+    string = string.replace('{', '').replace('}', '')
+    
     return string
 
 
@@ -224,7 +235,6 @@ def main():
 
         title = entry.get('title', '')
         title = clean_str(title)
-        title = title
 
         authors = entry.get('author', '')
         authors = authors.replace(' and ', '; ')
