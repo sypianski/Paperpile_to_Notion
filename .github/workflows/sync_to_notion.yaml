@@ -1,4 +1,3 @@
-
 name: Sync To Notion
 
 on: [push, ]
@@ -19,11 +18,16 @@ jobs:
             python3 -m pip install -U pip
             pip3 install requests bibtexparser
 
+      - name: Get latest commit hash
+        id: get_commit
+        run: echo "LATEST_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Sync to notion
         run: python sync.py
         env:
           NOTION_TOKEN: ${{secrets.NOTION_TOKEN}}
           DATABASE_IDENTIFIER: ${{secrets.DATABASE_IDENTIFIER}}
+          LATEST_COMMIT: ${{ env.LATEST_COMMIT }}
 
       - name: Update archive
         run: |

@@ -225,7 +225,18 @@ def main():
         year = entry.get('year', '')
         ref_id = entry.get('ID')
 
-        if ref_id not in archive_ids:  # New page≈
+        # Normalize the current entry for comparison
+        current_entry = {
+            'ID': ref_id,
+            'title': title,
+            'author': authors,
+            'year': year,
+        }
+
+        # Check if the entry already exists in the archive
+        matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
+
+        if not matching_entry:  # New entry
             notion_add_entry(
                 title=title,
                 authors=authors,
@@ -234,29 +245,27 @@ def main():
             )
             update_archive = True
         else:  # Check if the entry has changed
-            matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
-            if matching_entry:
-                # Compare fields to detect changes
-                if (
-                    matching_entry.get('title') != title or
-                    matching_entry.get('author') != authors or
-                    matching_entry.get('year') != year
-                ):
-                    page_id = notion_fetch_page(ref_id)
-                    if page_id != -1:
-                        notion_update_page(
-                            page_id=page_id,
-                            title=title,
-                            authors=authors,
-                            year=year,
-                            ref_id=ref_id,
-                        )
-                        update_archive = True
+            # Compare all fields to detect changes
+            if (
+                matching_entry.get('title') != current_entry['title'] or
+                matching_entry.get('author') != current_entry['author'] or
+                matching_entry.get('year') != current_entry['year']
+            ):
+                page_id = notion_fetch_page(ref_id)
+                if page_id != -1:
+                    notion_update_page(
+                        page_id=page_id,
+                        title=title,
+                        authors=authors,
+                        year=year,
+                        ref_id=ref_id,
+                    )
+                    update_archive = True
 
     # only update the archive if necessary
     if update_archive:
         with open(ARCHIVE_PATH, 'wb') as archive_file:
-            archive = pickle.dump(bibliography.entries, archive_file)
+            pickle.dump(archive, archive_file)
 
 
 if __name__ == "__main__":
