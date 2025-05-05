@@ -1,4 +1,3 @@
-
 import bibtexparser
 import json
 import os
@@ -41,7 +40,7 @@ def notion_add_entry(
             'Title': {
                 'title': [{
                     'text': {
-                        'content': title,
+                        'content': ref_id,  # Use ref_id as the Title
                     }
                 }]
             },
@@ -100,10 +99,10 @@ def notion_update_page(
             'Title': {
                 'title': [{
                     'text': {
-                        'content': title,
-                        }
-                    }]
-                },
+                        'content': ref_id,  # Use ref_id as the Title
+                    }
+                }]
+            },
             'Authors': {
                 "rich_text": [{
                     "type": "text",
@@ -131,11 +130,8 @@ def notion_update_page(
             'Link': {
                 "url": link,
             },
-                    
-                    
         },
     }
-    #  pprint.pprint(payload)
     headers = {
         "Accept": "application/json",
         "Notion-Version": "2022-06-28",
@@ -233,7 +229,7 @@ def main():
     update_archive = False
     for entry in reversed(bibliography.entries):
 
-        title = entry.get('ID', '')
+        title = entry.get('title', '')
         title = clean_str(title)
 
         authors = entry.get('author', '')
