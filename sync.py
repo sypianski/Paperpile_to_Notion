@@ -229,47 +229,47 @@ def main():
     update_archive = False
     for entry in reversed(bibliography.entries):
 
-    title = entry.get('title', '')
-    title = clean_str(title)
+        title = entry.get('title', '')
+        title = clean_str(title)
 
-    authors = entry.get('author', '')
-    authors = authors.replace(' and ', '; ')
-    authors = clean_str(authors)
+        authors = entry.get('author', '')
+        authors = authors.replace(' and ', '; ')
+        authors = clean_str(authors)
 
-    year = entry.get('year', '')
-    ref_id = entry.get('ID')
-    item_type = entry.get('type', '')  # Extract the type field
+        year = entry.get('year', '')
+        ref_id = entry.get('ID')
+        item_type = entry.get('type', '')  # Extract the type field
 
-    if ref_id not in archive_ids:  # New page
-        notion_add_entry(
-            title=title,
-            authors=authors,
-            year=year,
-            ref_id=ref_id,
-            item_type=item_type,  # Pass the type
-        )
-        update_archive = True
-    else:  # Check if the entry has changed
-        matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
-        if matching_entry:
-            # Compare fields to detect changes
-            if (
-                matching_entry.get('title') != title or
-                matching_entry.get('author') != authors or
-                matching_entry.get('year') != year or
-                matching_entry.get('type') != item_type
-            ):
-                page_id = notion_fetch_page(ref_id)
-                if page_id != -1:
-                    notion_update_page(
-                        page_id=page_id,
-                        title=title,
-                        authors=authors,
-                        year=year,
-                        ref_id=ref_id,
-                        item_type=item_type,  # Pass the type
-                    )
-                    update_archive = True
+        if ref_id not in archive_ids:  # New page
+            notion_add_entry(
+                title=title,
+                authors=authors,
+                year=year,
+                ref_id=ref_id,
+                item_type=item_type,  # Pass the type
+            )
+            update_archive = True
+        else:  # Check if the entry has changed
+            matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
+            if matching_entry:
+                # Compare fields to detect changes
+                if (
+                    matching_entry.get('title') != title or
+                    matching_entry.get('author') != authors or
+                    matching_entry.get('year') != year or
+                    matching_entry.get('type') != item_type
+                ):
+                    page_id = notion_fetch_page(ref_id)
+                    if page_id != -1:
+                        notion_update_page(
+                            page_id=page_id,
+                            title=title,
+                            authors=authors,
+                            year=year,
+                            ref_id=ref_id,
+                            item_type=item_type,  # Pass the type
+                        )
+                        update_archive = True
 
     # only update the archive if necessary
     if update_archive:
