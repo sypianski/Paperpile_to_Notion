@@ -190,12 +190,6 @@ def clean_str(string):
     for pattern, replacement in replacements.items():
         string = re.sub(pattern, replacement, string)
     
-    # Title case for lowercase words
-    string = ' '.join([w.title() if w.islower() else w for w in string.split()])
-    
-    # Remove curly braces
-    string = string.replace('{', '').replace('}', '')
-    
     return string
 
 
