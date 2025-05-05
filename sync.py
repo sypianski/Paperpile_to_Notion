@@ -250,7 +250,7 @@ def main():
             )
             update_archive = True
         else:  # Check if the entry has changed
-            matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
+            matching_entry = next((e for e in archive if e['Reference ID'] == ref_id), None)
             if matching_entry:
                 # Compare fields to detect changes
                 if (
