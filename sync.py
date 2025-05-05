@@ -20,7 +20,8 @@ def notion_add_entry(
     title='',
     authors='',
     year='0',
-    ref_id=''
+    ref_id='',
+    item_type=''
 ):
     # Ensure required fields are not empty
     if not title:
@@ -67,6 +68,14 @@ def notion_add_entry(
                     }
                 }],
             },
+            'Item type': {  # Add the "Item type" field
+                "rich_text": [{
+                    "type": "text",
+                    "text": {
+                        "content": item_type,
+                    }
+                }],
+            },
         },
     }
     headers = {
@@ -83,7 +92,8 @@ def notion_update_page(
     title='',
     authors='',
     year='0',
-    ref_id=''
+    ref_id='',
+    item_type=''
 ):
     url = f"https://api.notion.com/v1/pages/{page_id}"
     payload = {
@@ -119,6 +129,14 @@ def notion_update_page(
                     "type": "text",
                     "text": {
                         "content": title,
+                    }
+                }],
+            },
+            'Item type': {  # Add the "Item type" field
+                "rich_text": [{
+                    "type": "text",
+                    "text": {
+                        "content": item_type,
                     }
                 }],
             },
@@ -224,6 +242,7 @@ def main():
 
         year = entry.get('year', '')
         ref_id = entry.get('ID')
+        item_type = entry.get('type', '')  # Extract the "type" field
 
         # Normalize the current entry for comparison
         current_entry = {
@@ -231,6 +250,7 @@ def main():
             'title': title,
             'author': authors,
             'year': year,
+            'type': item_type,
         }
 
         # Check if the entry already exists in the archive
@@ -242,6 +262,7 @@ def main():
                 authors=authors,
                 year=year,
                 ref_id=ref_id,
+                item_type=item_type,  # Pass the "type" field
             )
             update_archive = True
         else:  # Check if the entry has changed
@@ -249,7 +270,8 @@ def main():
             if (
                 matching_entry.get('title') != current_entry['title'] or
                 matching_entry.get('author') != current_entry['author'] or
-                matching_entry.get('year') != current_entry['year']
+                matching_entry.get('year') != current_entry['year'] or
+                matching_entry.get('type') != current_entry['type']
             ):
                 page_id = notion_fetch_page(ref_id)
                 if page_id != -1:
@@ -259,6 +281,7 @@ def main():
                         authors=authors,
                         year=year,
                         ref_id=ref_id,
+                        item_type=item_type,  # Pass the "type" field
                     )
                     update_archive = True
 
