@@ -238,9 +238,12 @@ def main():
         title = entry.get('title', '')
         title = clean_str(title)
 
-        authors = entry.get('author', '')
-        authors = authors.replace(' and ', '; ')
-        authors = clean_str(authors)
+        authors = entry.get('author', '').strip()
+        if not authors:
+            authors = "unknown author"  # Fallback value for missing authors
+        else:
+            authors = authors.replace(' and ', '; ')
+            authors = clean_str(authors)
 
         year = entry.get('year', '')
         ref_id = entry.get('ID')
