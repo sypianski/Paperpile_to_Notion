@@ -36,10 +36,10 @@ def notion_add_entry(
             'database_id': DATABASE_IDENTIFIER,
         },
         "properties": {
-            'Title': {
+            'Reference ID': {
                 'title': [{
                     'text': {
-                        'content': title,  # Use title as the Title
+                        'content': ref_id,
                     }
                 }]
             },
@@ -59,11 +59,11 @@ def notion_add_entry(
                     }
                 }],
             },
-            'Reference ID': {
+            'Title': {
                 "rich_text": [{
                     "type": "text",
                     "text": {
-                        "content": ref_id,
+                        "content": title,
                     }
                 }],
             },
@@ -91,10 +91,10 @@ def notion_update_page(
             'database_id': DATABASE_IDENTIFIER,
         },
         "properties": {
-            'Title': {
+            'Reference ID': {
                 'title': [{
                     'text': {
-                        'content': title,  # Use title as the Title
+                        'content': ref_id,
                     }
                 }]
             },
@@ -114,11 +114,11 @@ def notion_update_page(
                     }
                 }],
             },
-            'Reference ID': {
+            'Title': {
                 "rich_text": [{
                     "type": "text",
                     "text": {
-                        "content": ref_id,
+                        "content": title,
                     }
                 }],
             },
