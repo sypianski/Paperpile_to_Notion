@@ -20,7 +20,8 @@ def notion_add_entry(
     title='',
     authors='',
     year='0',
-    ref_id=''
+    ref_id='',
+    item_type=''
 ):
     # Ensure required fields are not empty
     if not title:
@@ -67,6 +68,11 @@ def notion_add_entry(
                     }
                 }],
             },
+            'Item type': {
+                "select": {
+                    "name": item_type
+                }
+            },
         },
     }
     headers = {
@@ -83,7 +89,8 @@ def notion_update_page(
     title='',
     authors='',
     year='0',
-    ref_id=''
+    ref_id='',
+    item_type=''
 ):
     url = f"https://api.notion.com/v1/pages/{page_id}"
     payload = {
@@ -122,6 +129,11 @@ def notion_update_page(
                     }
                 }],
             },
+            'Item type': {
+                "select": {
+                    "name": item_type
+                }
+            },
         },
     }
     headers = {
@@ -131,7 +143,6 @@ def notion_update_page(
         "Authorization": f"Bearer {NOTION_TOKEN}"
     }
     response = requests.patch(url, json=payload, headers=headers)
-
 
 def notion_fetch_page(ref_id):
     url = f"https://api.notion.com/v1/databases/{DATABASE_IDENTIFIER}/query"
@@ -218,48 +229,62 @@ def main():
     update_archive = False
     for entry in reversed(bibliography.entries):
 
-        title = entry.get('title', '')
-        title = clean_str(title)
+    title = entry.get('title', '')
+    title = clean_str(title)
 
-        authors = entry.get('author', '')
-        authors = authors.replace(' and ', '; ')
-        authors = clean_str(authors)
+    authors = entry.get('author', '')
+    authors = authors.replace(' and ', '; ')
+    authors = clean_str(authors)
 
-        year = entry.get('year', '')
-        ref_id = entry.get('ID')
+    year = entry.get('year', '')
+    ref_id = entry.get('ID')
+    item_type = entry.get('type', '')  # Extract the type field
 
-        if ref_id not in archive_ids:  # New page≈
-            notion_add_entry(
-                title=title,
-                authors=authors,
-                year=year,
-                ref_id=ref_id,
-            )
-            update_archive = True
-        else:  # Check if the entry has changed
-            matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
-            if matching_entry:
-                # Compare fields to detect changes
-                if (
-                    matching_entry.get('title') != title or
-                    matching_entry.get('author') != authors or
-                    matching_entry.get('year') != year
-                ):
-                    page_id = notion_fetch_page(ref_id)
-                    if page_id != -1:
-                        notion_update_page(
-                            page_id=page_id,
-                            title=title,
-                            authors=authors,
-                            year=year,
-                            ref_id=ref_id,
-                        )
-                        update_archive = True
+    if ref_id not in archive_ids:  # New page
+        notion_add_entry(
+            title=title,
+            authors=authors,
+            year=year,
+            ref_id=ref_id,
+            item_type=item_type,  # Pass the type
+        )
+        update_archive = True
+    else:  # Check if the entry has changed
+        matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
+        if matching_entry:
+            # Compare fields to detect changes
+            if (
+                matching_entry.get('title') != title or
+                matching_entry.get('author') != authors or
+                matching_entry.get('year') != year or
+                matching_entry.get('type') != item_type
+            ):
+                page_id = notion_fetch_page(ref_id)
+                if page_id != -1:
+                    notion_update_page(
+                        page_id=page_id,
+                        title=title,
+                        authors=authors,
+                        year=year,
+                        ref_id=ref_id,
+                        item_type=item_type,  # Pass the type
+                    )
+                    update_archive = True
 
     # only update the archive if necessary
     if update_archive:
-        with open(ARCHIVE_PATH, 'wb') as archive_file:
-            archive = pickle.dump(bibliography.entries, archive_file)
+    with open(ARCHIVE_PATH, 'wb') as archive_file:
+        archive = [
+            {
+                'ID': entry.get('ID'),
+                'title': entry.get('title', ''),
+                'author': entry.get('author', ''),
+                'year': entry.get('year', ''),
+                'type': entry.get('type', '')  # Include type
+            }
+            for entry in bibliography.entries
+        ]
+        pickle.dump(archive, archive_file)
 
 
 if __name__ == "__main__":
