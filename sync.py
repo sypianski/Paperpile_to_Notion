@@ -20,8 +20,7 @@ def notion_add_entry(
     title='',
     authors='',
     year='0',
-    ref_id='',
-    item_type=''
+    ref_id=''
 ):
     # Ensure required fields are not empty
     if not title:
@@ -68,11 +67,6 @@ def notion_add_entry(
                     }
                 }],
             },
-            'Item type': {  # Use "select" for the "Item type" field
-                "select": {
-                    "name": item_type
-                }
-            },
         },
     }
     headers = {
@@ -89,8 +83,7 @@ def notion_update_page(
     title='',
     authors='',
     year='0',
-    ref_id='',
-    item_type=''
+    ref_id=''
 ):
     url = f"https://api.notion.com/v1/pages/{page_id}"
     payload = {
@@ -128,11 +121,6 @@ def notion_update_page(
                         "content": title,
                     }
                 }],
-            },
-            'Item type': {  # Use "select" for the "Item type" field
-                "select": {
-                    "name": item_type
-                }
             },
         },
     }
@@ -201,12 +189,14 @@ def clean_str(string):
     # Perform replacements using regex
     for pattern, replacement in replacements.items():
         string = re.sub(pattern, replacement, string)
+
+    # Remove curly braces
+    string = string.replace('{', '').replace('}', '')
     
     return string
 
 
 def main():
-    print("Starting the script...")
 
     # instantiate the parser
     parser = bibtexparser.bparser.BibTexParser()
@@ -214,24 +204,19 @@ def main():
     parser.homogenize_fields = False
     parser.interpolate_strings = False
 
-    print(f"Opening bibliography file: {BIB_PATH}")
     with open(BIB_PATH) as bib_file:
         bibliography = bibtexparser.load(bib_file, parser=parser)
 
-    print(f"Loaded {len(bibliography.entries)} entries from the bibliography.")
-
     if os.path.exists(ARCHIVE_PATH):
-        print(f"Loading archive from {ARCHIVE_PATH}")
         with open(ARCHIVE_PATH, 'rb') as archive_file:
             archive = pickle.load(archive_file)
     else:
-        print("No archive found. Creating a new one.")
         archive = []
     archive_ids = [e['ID'] for e in archive]
 
+    # add each entry to notion database
     update_archive = False
     for entry in reversed(bibliography.entries):
-        print(f"Processing entry: {entry.get('ID', 'Unknown ID')}")
 
         title = entry.get('title', '')
         title = clean_str(title)
@@ -242,53 +227,40 @@ def main():
 
         year = entry.get('year', '')
         ref_id = entry.get('ID')
-        item_type = entry.get('type', '')
 
-        current_entry = {
-            'ID': ref_id,
-            'title': title,
-            'author': authors,
-            'year': year,
-            'type': item_type,
-        }
-
-        matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
-
-        if not matching_entry:
-            print(f"Adding new entry to Notion: {ref_id}")
+        if ref_id not in archive_ids:  # New page≈
             notion_add_entry(
                 title=title,
                 authors=authors,
                 year=year,
                 ref_id=ref_id,
-                item_type=item_type,
             )
             update_archive = True
-        else:
-            if (
-                matching_entry.get('title') != current_entry['title'] or
-                matching_entry.get('author') != current_entry['author'] or
-                matching_entry.get('year') != current_entry['year'] or
-                matching_entry.get('type') != current_entry['type']
-            ):
-                print(f"Updating existing entry in Notion: {ref_id}")
-                page_id = notion_fetch_page(ref_id)
-                if page_id != -1:
-                    notion_update_page(
-                        page_id=page_id,
-                        title=title,
-                        authors=authors,
-                        year=year,
-                        ref_id=ref_id,
-                        item_type=item_type,
-                    )
-                    update_archive = True
+        else:  # Check if the entry has changed
+            matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
+            if matching_entry:
+                # Compare fields to detect changes
+                if (
+                    matching_entry.get('title') != title or
+                    matching_entry.get('author') != authors or
+                    matching_entry.get('year') != year
+                ):
+                    page_id = notion_fetch_page(ref_id)
+                    if page_id != -1:
+                        notion_update_page(
+                            page_id=page_id,
+                            title=title,
+                            authors=authors,
+                            year=year,
+                            ref_id=ref_id,
+                        )
+                        update_archive = True
 
+    # only update the archive if necessary
     if update_archive:
-        print("Updating the archive...")
         with open(ARCHIVE_PATH, 'wb') as archive_file:
-            pickle.dump(archive, archive_file)
-    else:
-        print("No changes detected. Archive not updated.")
+            archive = pickle.dump(bibliography.entries, archive_file)
 
-    print("Script finished.")
+
+if __name__ == "__main__":
+    main()
