@@ -238,7 +238,7 @@ def main():
 
         year = entry.get('year', '')
         ref_id = entry.get('ID')
-        item_type = entry.get('type', '')  # Extract the type field
+        item_type = entry.get('ENTRYTYPE', '')  # Extract the entry type from BibTeX
 
         if ref_id not in archive_ids:  # New page
             notion_add_entry(
@@ -280,7 +280,7 @@ def main():
                     'title': entry.get('title', ''),
                     'author': entry.get('author', ''),
                     'year': entry.get('year', ''),
-                    'type': entry.get('type', '')  # Include type
+                    'type': entry.get('ENTRYTYPE', '')  # Include entry type
                 }
                 for entry in bibliography.entries
             ]
