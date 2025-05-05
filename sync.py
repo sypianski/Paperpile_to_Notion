@@ -233,7 +233,7 @@ def main():
     update_archive = False
     for entry in reversed(bibliography.entries):
 
-        title = entry.get('title', '')
+        title = entry.get('ID', '')
         title = clean_str(title)
 
         authors = entry.get('author', '')
