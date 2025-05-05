@@ -20,8 +20,7 @@ def notion_add_entry(
     title='',
     authors='',
     year='0',
-    ref_id='',
-    link=''
+    ref_id=''
 ):
     # Ensure required fields are not empty
     if not title:
@@ -68,9 +67,6 @@ def notion_add_entry(
                     }
                 }],
             },
-            'Link': {
-                "url": link if link else None,
-            },
         },
     }
     headers = {
@@ -87,8 +83,7 @@ def notion_update_page(
     title='',
     authors='',
     year='0',
-    ref_id='',
-    link='',
+    ref_id=''
 ):
     url = f"https://api.notion.com/v1/pages/{page_id}"
     payload = {
@@ -126,9 +121,6 @@ def notion_update_page(
                         "content": ref_id,
                     }
                 }],
-            },
-            'Link': {
-                "url": link,
             },
         },
     }
@@ -237,16 +229,14 @@ def main():
         authors = clean_str(authors)
 
         year = entry.get('year', '')
-        link = entry.get('url', '')
         ref_id = entry.get('ID')
 
-        if ref_id not in archive_ids:  # New page
+        if ref_id not in archive_ids:  # New page≈
             notion_add_entry(
                 title=title,
                 authors=authors,
                 year=year,
                 ref_id=ref_id,
-                link=link,
             )
             update_archive = True
         else:  # Check if the entry has changed
@@ -256,8 +246,7 @@ def main():
                 if (
                     matching_entry.get('title') != title or
                     matching_entry.get('author') != authors or
-                    matching_entry.get('year') != year or
-                    matching_entry.get('url') != link
+                    matching_entry.get('year') != year
                 ):
                     page_id = notion_fetch_page(ref_id)
                     if page_id != -1:
@@ -267,7 +256,6 @@ def main():
                             authors=authors,
                             year=year,
                             ref_id=ref_id,
-                            link=link,
                         )
                         update_archive = True
 
