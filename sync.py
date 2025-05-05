@@ -241,7 +241,7 @@ def main():
         authors = clean_str(authors)
 
         year = entry.get('year', '')
-        link = entry.get('urls', '')
+        link = entry.get('url', '')
         ref_id = entry.get('ID')
 
         if ref_id not in archive_ids: # new page
