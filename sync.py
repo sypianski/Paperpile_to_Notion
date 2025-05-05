@@ -273,18 +273,18 @@ def main():
 
     # only update the archive if necessary
     if update_archive:
-    with open(ARCHIVE_PATH, 'wb') as archive_file:
-        archive = [
-            {
-                'ID': entry.get('ID'),
-                'title': entry.get('title', ''),
-                'author': entry.get('author', ''),
-                'year': entry.get('year', ''),
-                'type': entry.get('type', '')  # Include type
-            }
-            for entry in bibliography.entries
-        ]
-        pickle.dump(archive, archive_file)
+        with open(ARCHIVE_PATH, 'wb') as archive_file:
+            archive = [
+                {
+                    'ID': entry.get('ID'),
+                    'title': entry.get('title', ''),
+                    'author': entry.get('author', ''),
+                    'year': entry.get('year', ''),
+                    'type': entry.get('type', '')  # Include type
+                }
+                for entry in bibliography.entries
+            ]
+            pickle.dump(archive, archive_file)
 
 
 if __name__ == "__main__":
