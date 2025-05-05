@@ -68,13 +68,10 @@ def notion_add_entry(
                     }
                 }],
             },
-            'Item type': {  # Add the "Item type" field
-                "rich_text": [{
-                    "type": "text",
-                    "text": {
-                        "content": item_type,
-                    }
-                }],
+            'Item type': {  # Use "select" for the "Item type" field
+                "select": {
+                    "name": item_type
+                }
             },
         },
     }
@@ -132,13 +129,10 @@ def notion_update_page(
                     }
                 }],
             },
-            'Item type': {  # Add the "Item type" field
-                "rich_text": [{
-                    "type": "text",
-                    "text": {
-                        "content": item_type,
-                    }
-                }],
+            'Item type': {  # Use "select" for the "Item type" field
+                "select": {
+                    "name": item_type
+                }
             },
         },
     }
