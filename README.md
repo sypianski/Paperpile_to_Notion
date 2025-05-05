@@ -14,7 +14,7 @@ Sync changes in Paperpile to a Notion database.
     4. `Link` of type url.
     5. `Reference ID` of type text.
 
-2. Get the **database identifier** from the database page. If your database url is:
+2. Get the **database identifier** from the database page (Copy link to All items). If your database url is:
 
     ```
     https://www.notion.so/my_workspace/aaaabbbbccccddddeeeeffffgggghhhh
@@ -30,7 +30,7 @@ Sync changes in Paperpile to a Notion database.
     4. User Capabilities: Read user information, including email addresses.
     5. Press "Submit" and copy the **Internal Integration Token**.
 
-4. On the database page, click "Share" (top right) and add "Paperpile to Notion" with edit access.
+4. On the database page, click "Connections" (top right) and add "Paperpile to Notion" with edit access.
 
 ### On GitHub
 
