@@ -211,6 +211,9 @@ def clean_str(string):
 
     # Remove curly braces
     string = string.replace('{', '').replace('}', '')
+
+    string = string.replace('``', '"')
+    string = string.replace('\'\'', '"')
     
     return string
 
