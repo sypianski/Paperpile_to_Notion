@@ -273,29 +273,29 @@ def main():
         else:  # Check if the entry has changed
             matching_entry = next((e for e in archive if e['ID'] == ref_id), None)
             if matching_entry:
-            # Compare fields to detect changes
-            if (
-                matching_entry.get('title', '') != title or
-                matching_entry.get('author', '').strip() != authors or
-                matching_entry.get('year', '').strip() != year or
-                matching_entry.get('type', '').strip() != item_type
-            ):
-                print(f"Detected changes for ID {ref_id}:")
-                print(f"Title: {matching_entry.get('title', '')} != {title}")
-                print(f"Author: {matching_entry.get('author', '').strip()} != {authors}")
-                print(f"Year: {matching_entry.get('year', '').strip()} != {year}")
-                print(f"Type: {matching_entry.get('type', '').strip()} != {item_type}")
-                page_id = notion_fetch_page(ref_id)
-                if page_id != -1:
-                notion_update_page(
-                    page_id=page_id,
-                    title=title,
-                    authors=authors,
-                    year=year,
-                    ref_id=ref_id,
-                    item_type=item_type,
-                )
-                update_archive = True
+                # Compare fields to detect changes
+                if (
+                    matching_entry.get('title', '') != title or
+                    matching_entry.get('author', '').strip() != authors or
+                    matching_entry.get('year', '').strip() != year or
+                    matching_entry.get('type', '').strip() != item_type
+                ):
+                    print(f"Detected changes for ID {ref_id}:")
+                    print(f"Title: {matching_entry.get('title', '')} != {title}")
+                    print(f"Author: {matching_entry.get('author', '').strip()} != {authors}")
+                    print(f"Year: {matching_entry.get('year', '').strip()} != {year}")
+                    print(f"Type: {matching_entry.get('type', '').strip()} != {item_type}")
+                    page_id = notion_fetch_page(ref_id)
+                    if page_id != -1:
+                        notion_update_page(
+                            page_id=page_id,
+                            title=title,
+                            authors=authors,
+                            year=year,
+                            ref_id=ref_id,
+                            item_type=item_type,
+                        )
+                        update_archive = True
 
     # only update the archive if necessary
     if update_archive:
