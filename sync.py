@@ -6,19 +6,6 @@ import requests
 # import pprint
 
 ARCHIVE_PATH = 'archive.pk'
-
-# Nadpisanie pustą listą
-with open(ARCHIVE_PATH, 'wb') as archive_file:
-    pickle.dump([], archive_file)
-
-print("Plik archive.pk został zresetowany.")
-
-"""
-TODO:
-- Default icon for papers.
-"""
-
-ARCHIVE_PATH = 'archive.pk'
 BIB_PATH = 'references.bib'
 NOTION_TOKEN = os.environ['NOTION_TOKEN']
 DATABASE_IDENTIFIER = os.environ['DATABASE_IDENTIFIER']
@@ -218,7 +205,8 @@ def clean_str(string):
     string = string.replace('``', '"')
     string = string.replace('\'\'', '"')
     
-    string = string.replace('(.+?), (.+?)(;|\s*$) ?', '$2 $1$3')
+    if 'author' in string.lower():
+        string = re.sub(r'(.+?), (.+?)(;|\s*$)', r'\2 \1\3', string)
 
     return string
 
