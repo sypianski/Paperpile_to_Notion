@@ -53,12 +53,9 @@ def notion_add_entry(
                 }]
             },
             'Authors': {
-                "rich_text": [{
-                    "type": "text",
-                    "text": {
-                        "content": authors,
-                    }
-                }],
+                "multi_select": [
+                    {"name": author.strip()} for author in authors.split(";")
+                ]
             },
             'Year': {
                 "rich_text": [{
@@ -114,12 +111,9 @@ def notion_update_page(
                 }]
             },
             'Authors': {
-                "rich_text": [{
-                    "type": "text",
-                    "text": {
-                        "content": authors,
-                    }
-                }],
+                "multi_select": [
+                    {"name": author.strip()} for author in authors.split(";")
+                ]
             },
             'Year': {
                 "rich_text": [{
@@ -212,9 +206,12 @@ def clean_str(string):
     # Remove curly braces
     string = string.replace('{', '').replace('}', '')
 
+    # Improve quotes
     string = string.replace('``', '"')
     string = string.replace('\'\'', '"')
     
+    string = string.replace('(.+?), (.+?)(;|\s*$) ?', '$2 $1$3')
+
     return string
 
 
