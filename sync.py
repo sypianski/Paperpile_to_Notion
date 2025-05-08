@@ -1,9 +1,17 @@
 import bibtexparser
-# import json
 import os
 import pickle
-# import pprint
 import requests
+# import json
+# import pprint
+
+ARCHIVE_PATH = 'archive.pk'
+
+# Nadpisanie pustą listą
+with open(ARCHIVE_PATH, 'wb') as archive_file:
+    pickle.dump([], archive_file)
+
+print("Plik archive.pk został zresetowany.")
 
 """
 TODO:
