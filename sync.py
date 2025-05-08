@@ -1,9 +1,14 @@
 import bibtexparser
+# import json
 import os
 import pickle
-import requests
-# import json
 # import pprint
+import requests
+
+"""
+TODO:
+- Default icon for papers.
+"""
 
 ARCHIVE_PATH = 'archive.pk'
 BIB_PATH = 'references.bib'
@@ -48,9 +53,12 @@ def notion_add_entry(
                 }]
             },
             'Authors': {
-                "multi_select": [
-                    {"name": author.strip()} for author in authors.split(";")
-                ]
+                "rich_text": [{
+                    "type": "text",
+                    "text": {
+                        "content": authors,
+                    }
+                }],
             },
             'Year': {
                 "rich_text": [{
@@ -106,9 +114,12 @@ def notion_update_page(
                 }]
             },
             'Authors': {
-                "multi_select": [
-                    {"name": author.strip()} for author in authors.split(";")
-                ]
+                "rich_text": [{
+                    "type": "text",
+                    "text": {
+                        "content": authors,
+                    }
+                }],
             },
             'Year': {
                 "rich_text": [{
@@ -204,9 +215,6 @@ def clean_str(string):
     # Improve quotes
     string = string.replace('``', '"')
     string = string.replace('\'\'', '"')
-    
-    if 'author' in string.lower():
-        string = re.sub(r'(.+?), (.+?)(;|\s*$)', r'\2 \1\3', string)
 
     return string
 
