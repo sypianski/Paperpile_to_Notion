@@ -44,13 +44,96 @@ Sync changes in Paperpile to a Notion database.
 
 ### On Paperpile
 
-1. Click on the top-right gear, go to "Workflows and Integrations".
+#### Creating an SSH Key
+
+Before setting up the BibTeX Export integration, you need to create an SSH key pair to allow Paperpile to authenticate with GitHub:
+
+1. **Generate an SSH key pair:**
+
+   - **On macOS/Linux:** Open Terminal and run:
+     ```bash
+     ssh-keygen -t ed25519 -C "paperpile-integration"
+     ```
+     When prompted for a file location, press Enter to use the default location (`~/.ssh/id_ed25519`).
+     When prompted for a passphrase, you can press Enter to skip (no passphrase) for easier automation.
+
+   - **On Windows:** Open PowerShell or Git Bash and run the same command:
+     ```bash
+     ssh-keygen -t ed25519 -C "paperpile-integration"
+     ```
+     When prompted for a file location, press Enter to use the default location.
+     When prompted for a passphrase, you can press Enter to skip (no passphrase) for easier automation.
+
+2. **Copy your public SSH key:**
+
+   - **On macOS:** Run in Terminal:
+     ```bash
+     pbcopy < ~/.ssh/id_ed25519.pub
+     ```
+   
+   - **On Linux:** Run in Terminal:
+     ```bash
+     cat ~/.ssh/id_ed25519.pub
+     ```
+     Then manually copy the output.
+   
+   - **On Windows (PowerShell):** Run:
+     ```powershell
+     Get-Content ~/.ssh/id_ed25519.pub | Set-Clipboard
+     ```
+   
+   - **On Windows (Git Bash):** Run:
+     ```bash
+     cat ~/.ssh/id_ed25519.pub
+     ```
+     Then manually copy the output.
+
+3. **Add the SSH key to GitHub:**
+
+   1. Go to GitHub Settings: [https://github.com/settings/keys](https://github.com/settings/keys)
+   2. Click "New SSH key" (or "Add SSH key")
+   3. Give it a title like "Paperpile Integration"
+   4. Paste your public key into the "Key" field
+   5. Click "Add SSH key"
+
+4. **Test the SSH connection (optional but recommended):**
+   ```bash
+   ssh -T git@github.com
+   ```
+   You should see a message like: "Hi username! You've successfully authenticated..."
+
+#### Setting up BibTeX Export
+
+1. Click on the top-right gear in Paperpile, go to "Workflows and Integrations".
 2. Follow the instructions to add a new "BibTex Export", choosing:
 
     1. Your GitHub repository fork as the repository.
     2. `references.bib` as the export path.
+    3. When prompted, provide the **private SSH key** (located at `~/.ssh/id_ed25519` by default).
 
 The first sync should start as soon as the Paperpile workflow is created, and subsequent syncs are triggered whenever papers are added or updated in your Paperpile.
 
 **Note**
 The first sync might take some time as Notion limits the API rate to ~ 3 requests / second; so if you have 1,000 papers it'll take ~ 6 minutes before they are all available in Notion.
+
+## Troubleshooting
+
+### SSH Key Issues
+
+**Problem: "Permission denied (publickey)" error**
+- Make sure you've added your public SSH key to GitHub at [https://github.com/settings/keys](https://github.com/settings/keys)
+- Verify you're using the correct private key file when setting up Paperpile's BibTeX Export
+- Test your SSH connection: `ssh -T git@github.com`
+
+**Problem: "Could not open a connection to your authentication agent"**
+- Start the SSH agent: `eval "$(ssh-agent -s)"`
+- Add your SSH key: `ssh-add ~/.ssh/id_ed25519`
+
+**Problem: SSH key file not found**
+- Check if the key file exists: `ls ~/.ssh/id_ed25519`
+- If not, generate a new key following the instructions in the "Creating an SSH Key" section above
+
+**Problem: Paperpile can't authenticate with GitHub**
+- Ensure you're providing the **private key** (not the .pub file) to Paperpile
+- The private key file is typically located at `~/.ssh/id_ed25519` (without the .pub extension)
+- On Windows, the path might be `C:\Users\YourUsername\.ssh\id_ed25519`
