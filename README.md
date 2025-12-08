@@ -55,14 +55,16 @@ Before setting up the BibTeX Export integration, you need to create an SSH key p
      ssh-keygen -t ed25519 -C "paperpile-integration"
      ```
      When prompted for a file location, press Enter to use the default location (`~/.ssh/id_ed25519`).
-     When prompted for a passphrase, you can press Enter to skip (no passphrase) for easier automation.
+     When prompted for a passphrase, you can press Enter to skip (no passphrase) for easier automation, or enter a passphrase for better security.
 
    - **On Windows:** Open PowerShell or Git Bash and run the same command:
      ```bash
      ssh-keygen -t ed25519 -C "paperpile-integration"
      ```
      When prompted for a file location, press Enter to use the default location.
-     When prompted for a passphrase, you can press Enter to skip (no passphrase) for easier automation.
+     When prompted for a passphrase, you can press Enter to skip (no passphrase) for easier automation, or enter a passphrase for better security.
+
+   **Security Note:** Using a passphrase adds an extra layer of security to protect your private key. However, if you use a passphrase, you may need to use `ssh-agent` to cache it for Paperpile to work seamlessly. For personal projects, skipping the passphrase is often acceptable, but consider using a passphrase if you're concerned about unauthorized access to your private key file.
 
 2. **Copy your public SSH key:**
 
