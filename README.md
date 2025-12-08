@@ -105,7 +105,7 @@ Before setting up the BibTeX Export integration, you need to create an SSH key p
 #### Setting up BibTeX Export
 
 1. Click on the top-right gear in Paperpile, go to "Workflows and Integrations".
-2. Follow the instructions to add a new "BibTex Export", choosing:
+2. Follow the instructions to add a new "BibTeX Export", choosing:
 
     1. Your GitHub repository fork as the repository.
     2. `references.bib` as the export path.
